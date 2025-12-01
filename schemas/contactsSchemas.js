@@ -1,4 +1,4 @@
-import Joi from "joi";
+const Joi = require('joi');
 
 const addSchema = Joi.object({
   name: Joi.string().min(1).required(),
@@ -12,4 +12,22 @@ const updateSchema = Joi.object({
   phone: Joi.string().min(5)
 }).min(1);
 
-export { addSchema, updateSchema };
+const favoriteSchema = Joi.object({
+  favorite: Joi.boolean().required()
+});
+
+function validate(schema) {
+  return (req, res, next) => {
+    const { error } = schema.validate(req.body);
+    if (error) {
+      return res.status(400).json({ message: error.message });
+    }
+    next();
+  };
+}
+
+module.exports = {
+  validateAdd: validate(addSchema),
+  validateUpdate: validate(updateSchema),
+  validateFavorite: validate(favoriteSchema)
+};

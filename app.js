@@ -1,19 +1,21 @@
-import express from "express";
-import contactsRouter from "./routes/contactsRoutes.js";
+const express = require('express');
+const contactsRouter = require('./routes/contactsRouter');
+const { sequelize } = require('./models/contactModel');
 
 const app = express();
 app.use(express.json());
+app.use('/api/contacts', contactsRouter);
 
-app.use("/api/contacts", contactsRouter);
+// DB init
+(async function initDb() {
+  try {
+    await sequelize.authenticate();
+    console.log("Database connection successful");
+    await sequelize.sync(); // ensures table exists
+  } catch (err) {
+    console.error("Database connection error:", err.message);
+    process.exit(1);
+  }
+})();
 
-// simple error handler
-app.use((err, req, res, next) => {
-  const status = err.status || 500;
-  res.status(status).json({ message: err.message });
-});
-
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running. Use our API on port: ${PORT}`);
-});
-export default app;
+module.exports = app;
