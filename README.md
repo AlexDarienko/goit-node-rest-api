@@ -1,31 +1,22 @@
-# goit-node-restapi-postgres
+GOIT Contacts REST API with JWT auth (Sequelize + Postgres)
 
-REST API for contacts using PostgreSQL + Sequelize.
+Setup:
 
-## How to run
+1. Copy .env.example to .env and set DB_URL and JWT_SECRET.
+2. npm install
+3. npm start
 
-1. Install dependencies:
-```
-npm install
-```
+Endpoints (auth):
+POST /api/auth/register
+POST /api/auth/login
+POST /api/auth/logout (protected)
+GET /api/auth/current (protected)
+PATCH /api/auth/subscription (protected)
 
-2. (Optional) Set DATABASE_URL environment variable. By default the project uses the provided Render external URL.
-Example:
-```
-export DATABASE_URL="postgresql://user:pass@host:5432/dbname"
-```
-
-3. Start the app:
-```
-npm start
-```
-
-Server runs on port 3000 by default.
-
-## Endpoints
-- GET /api/contacts
-- GET /api/contacts/:contactId
-- POST /api/contacts  (body: {name, email, phone})
-- PUT /api/contacts/:contactId (body: any of name/email/phone)
-- PATCH /api/contacts/:contactId/favorite (body: { favorite: true|false })
-- DELETE /api/contacts/:contactId
+Contacts (protected):
+GET /api/contacts?page=1&limit=20&favorite=true
+GET /api/contacts/:contactId
+POST /api/contacts
+PUT /api/contacts/:contactId
+PATCH /api/contacts/:contactId/favorite
+DELETE /api/contacts/:contactId
