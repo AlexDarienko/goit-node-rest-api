@@ -5,6 +5,7 @@ const { sequelize } = require('./models/contactModel');
 const app = express();
 app.use(express.json());
 app.use('/api/contacts', contactsRouter);
+app.use('/api/auth', authRouter);
 
 // DB init
 (async function initDb() {

@@ -1,5 +1,5 @@
 {
-  "name": "goit-node-restapi-postgres",
+  "name": "goit-node-auth",
   "version": "1.0.0",
   "main": "server.js",
   "type": "commonjs",

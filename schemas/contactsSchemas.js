@@ -1,33 +1,19 @@
-const Joi = require('joi');
+import Joi from 'joi';
 
-const addSchema = Joi.object({
+export const addContactSchema = Joi.object({
   name: Joi.string().min(1).required(),
   email: Joi.string().email().required(),
-  phone: Joi.string().min(5).required()
+  phone: Joi.string().min(5).required(),
+  favorite: Joi.boolean()
 });
 
-const updateSchema = Joi.object({
+export const updateContactSchema = Joi.object({
   name: Joi.string().min(1),
   email: Joi.string().email(),
-  phone: Joi.string().min(5)
+  phone: Joi.string().min(5),
+  favorite: Joi.boolean()
 }).min(1);
 
-const favoriteSchema = Joi.object({
+export const favoriteSchema = Joi.object({
   favorite: Joi.boolean().required()
 });
-
-function validate(schema) {
-  return (req, res, next) => {
-    const { error } = schema.validate(req.body);
-    if (error) {
-      return res.status(400).json({ message: error.message });
-    }
-    next();
-  };
-}
-
-module.exports = {
-  validateAdd: validate(addSchema),
-  validateUpdate: validate(updateSchema),
-  validateFavorite: validate(favoriteSchema)
-};
