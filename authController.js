@@ -1,6 +1,9 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import User from '../models/user.js';
+import gravatar from 'gravatar';
+import fs from 'fs';
+import path from 'path';
+import User from './user.js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 const JWT_EXPIRES = '1h';
@@ -13,7 +16,8 @@ export async function register(req, res, next) {
       return res.status(409).json({ message: 'Email in use' });
     }
     const hashed = await bcrypt.hash(password, 10);
-    const user = await User.create({ email, password: hashed });
+    const avatar = gravatar.url(email, {s: '200', r: 'pg'}, true);
+    const user = await User.create({ email, password: hashed, avatarURL: avatar });
     return res.status(201).json({ user: { email: user.email, subscription: user.subscription } });
   } catch (err) {
     next(err);
@@ -63,5 +67,29 @@ export async function updateSubscription(req, res, next) {
     user.subscription = subscription;
     await user.save();
     return res.status(200).json({ email: user.email, subscription: user.subscription });
+  } catch (err) { next(err); }
+}
+
+// Avatar upload handler
+export async function updateAvatar(req, res, next) {
+  try {
+    if (!req.file) return res.status(400).json({ message: 'File is required' });
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(401).json({ message: 'Not authorized' });
+
+    const tempPath = req.file.path;
+    const ext = path.extname(req.file.originalname);
+    const fileName = `${user.id}_${Date.now()}${ext}`;
+    const avatarsDir = path.join(process.cwd(), 'public', 'avatars');
+    const targetPath = path.join(avatarsDir, fileName);
+
+    // move file from temp to public/avatars
+    await fs.promises.rename(tempPath, targetPath);
+
+    const avatarURL = `/avatars/${fileName}`;
+    user.avatarURL = avatarURL;
+    await user.save();
+
+    return res.status(200).json({ avatarURL });
   } catch (err) { next(err); }
 }

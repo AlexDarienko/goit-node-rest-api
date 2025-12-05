@@ -1,10 +1,10 @@
-const express = require('express');
-import { validateBody } from '../middlewares/validateBody.js';
-import { addContactSchema, updateContactSchema, favoriteSchema } from '../schemas/contactsSchemas.js';
-import { authenticate } from '../middlewares/authenticate.js';
+import express from 'express';
+import { validateBody } from './validateBody.js';
+import { addContactSchema, updateContactSchema, favoriteSchema } from './contactsSchemas.js';
+import { authenticate } from './authenticate.js';
 import {
   listContacts, getContactById, addContact, removeContact, updateContact, updateStatusContact
-} from '../controllers/contactsController.js';
+} from './contactsController.js';
 
 const router = express.Router();
 
