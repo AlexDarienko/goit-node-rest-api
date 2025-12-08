@@ -1,42 +1,39 @@
-import express from 'express';
-import dotenv from 'dotenv';
-import path from 'path';
-import { fileURLToPath } from 'url';
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+
+import sequelize from "./db/sequelize.js";
+import contactsRouter from "./routes/api/contactsRouter.js";
+import authRouter from "./routes/api/authRouter.js";
+
 dotenv.config();
 
-import sequelize from './sequelize.js';
-import authRoutes from './authRoutes.js';
-import contactsRoutes from './contactsRoutes.js';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 const app = express();
+app.use(cors());
 app.use(express.json());
 
-// serve avatars statically at /avatars
-app.use('/avatars', express.static(path.join(__dirname, 'public', 'avatars')));
+// static
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+app.use("/avatars", express.static(path.join(__dirname, "public/avatars")));
 
-app.use('/api/auth', authRoutes);
-app.use('/api/contacts', contactsRoutes);
+app.use("/api/contacts", contactsRouter);
+app.use("/auth", authRouter);
 
-// global error handler
-app.use((err, req, res, next) => {
-  const status = err.status || 500;
-  res.status(status).json({ message: err.message });
-});
+const PORT = process.env.PORT || 3000;
 
-const start = async () => {
-  try {
-    await sequelize.authenticate();
-    console.log('Database connection successful');
-    await sequelize.sync();
-    const PORT = process.env.PORT || 3000;
-    app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-  } catch (err) {
-    console.error('Database connection error:', err.message);
+sequelize
+  .authenticate()
+  .then(() => {
+    console.log("Database connection successful");
+
+    sequelize.sync().then(() => {
+      app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+    });
+  })
+  .catch((err) => {
+    console.error("Database connection error:", err.message);
     process.exit(1);
-  }
-};
-
-start();
+  });
