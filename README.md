@@ -1,25 +1,11 @@
-GOIT Contacts REST API with JWT auth + avatar upload (flat layout)
+GOIT Contacts API with Email Verification (Nodemailer + ukr.net)
 
 Setup:
-1. Copy .env.example to .env and set DB_URL and JWT_SECRET.
+1. Copy .env.example to .env and fill DB_URL, JWT_SECRET, SMTP_* and SERVER_URL.
 2. npm install
 3. npm start
 
-Static files:
-- public/avatars is served at http://localhost:PORT/avatars/<filename>
-
-Auth endpoints:
-POST /api/auth/register
-POST /api/auth/login
-POST /api/auth/logout (protected)
-GET  /api/auth/current (protected)
-PATCH /api/auth/subscription (protected)
-PATCH /api/auth/avatars (protected, multipart/form-data file field name: avatar)
-
-Contacts endpoints (protected):
-GET /api/contacts?page=1&limit=20&favorite=true
-GET /api/contacts/:contactId
-POST /api/contacts
-PUT /api/contacts/:contactId
-PATCH /api/contacts/:contactId/favorite
-DELETE /api/contacts/:contactId
+Verification flow:
+- After registering, user gets email with link: {SERVER_URL}/auth/verify/:verificationToken
+- Visiting link first time: 200 Verification successful
+- Visiting again: 404 User not found (token cleared)

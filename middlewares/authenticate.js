@@ -1,26 +1,22 @@
-import jwt from "jsonwebtoken";
-import User from "../models/user.js";
+import jwt from 'jsonwebtoken';
+import User from '../models/user.js';
+const JWT_SECRET = process.env.JWT_SECRET || 'secret';
 
-export const auth = async (req, res, next) => {
-  const { authorization = "" } = req.headers;
-  const [bearer, token] = authorization.split(" ");
-
-  if (bearer !== "Bearer") {
-    return res.status(401).json({ message: "Not authorized" });
-  }
-
+export const authenticate = async (req, res, next) => {
   try {
-    const { id } = jwt.verify(token, process.env.JWT_SECRET);
-
-    const user = await User.findByPk(id);
-
-    if (!user || user.token !== token) {
-      return res.status(401).json({ message: "Not authorized" });
+    const header = req.get('Authorization') || '';
+    const token = header.replace('Bearer ', '');
+    if (!token) return res.status(401).json({ message: 'Not authorized' });
+    let payload;
+    try { payload = jwt.verify(token, JWT_SECRET); } catch (err) {
+      return res.status(401).json({ message: 'Not authorized' });
     }
-
-    req.user = user;
+    const user = await User.findByPk(payload.id);
+    if (!user || user.token !== token) return res.status(401).json({ message: 'Not authorized' });
+    req.user = { id: user.id, email: user.email, subscription: user.subscription, verify: user.verify };
+    req.token = token;
     next();
-  } catch {
-    res.status(401).json({ message: "Not authorized" });
+  } catch (err) {
+    next(err);
   }
 };

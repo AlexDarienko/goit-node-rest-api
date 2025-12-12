@@ -10,6 +10,6 @@ export const loginSchema = Joi.object({
   password: Joi.string().required()
 });
 
-export const subscriptionSchema = Joi.object({
-  subscription: Joi.string().valid('starter','pro','business').required()
+export const resendSchema = Joi.object({
+  email: Joi.string().email().required()
 });
